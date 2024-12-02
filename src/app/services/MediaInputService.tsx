@@ -1,13 +1,29 @@
+import { audioContextOptions } from "../../shared/constants/audioContextOptions";
+
 class MediaInputService {
-  private audioNode: MediaStreamAudioSourceNode | undefined;
+  public actx: AudioContext = new AudioContext({ ...audioContextOptions });
+  public mediaSource: MediaStreamAudioSourceNode | undefined;
+  public gain: GainNode = this.actx.createGain();
+  public filter: BiquadFilterNode = this.actx.createBiquadFilter();
+  public distortion: WaveShaperNode = this.actx.createWaveShaper();
+
+  public makeDistortionCurve = (amount: number) => {
+    const n_samples = 256;
+    const curve = new Float32Array(n_samples);
+    for (let i = 0; i < n_samples; ++i) {
+      const x = (i * 2) / n_samples - 1;
+      curve[i] = ((Math.PI + amount) * x) / (Math.PI + amount * Math.abs(x));
+    }
+    return curve;
+  };
 
   private connectDevice = (stream: MediaStream) => {
-    const audioContext = new AudioContext({
-      latencyHint: "interactive",
-    });
-    this.audioNode = audioContext.createMediaStreamSource(stream);
+    this.mediaSource = this.actx.createMediaStreamSource(stream);
 
-    this.audioNode.connect(audioContext.destination);
+    this.mediaSource.connect(this.gain);
+    this.gain.connect(this.filter);
+    this.filter.connect(this.distortion);
+    this.distortion.connect(this.actx.destination);
   };
 
   private getAllDevices = async () => {
@@ -18,7 +34,7 @@ class MediaInputService {
   };
 
   disconnectDevice = () => {
-    this.audioNode?.disconnect();
+    this.mediaSource?.disconnect();
   };
 
   getAudioDevices = async () => {
