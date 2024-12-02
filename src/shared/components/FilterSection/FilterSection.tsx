@@ -1,17 +1,7 @@
-import React from "react";
+import { useContext } from "react";
 import RangeKnob from "../RangeKnob/RangeKnob";
-
-interface FilterSectionProps {
-  settings: {
-    frequency: number;
-    detune: number;
-    Q: number;
-    gain: number;
-    type: BiquadFilterType;
-  };
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  changeType: (type: BiquadFilterType) => void;
-}
+import styles from "./FilterSection.module.scss";
+import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
 
 const filterTypes: BiquadFilterType[] = [
   "lowpass",
@@ -21,41 +11,47 @@ const filterTypes: BiquadFilterType[] = [
   "highshelf",
 ];
 
-const FilterSection = ({
-  settings,
-  onChange,
-  changeType,
-}: FilterSectionProps) => {
-  const { frequency, detune, Q, gain, type } = settings;
+const FilterSection = () => {
+  const { changeFilter, changeFilterType, filterSettings } =
+    useContext(AppAudioContext);
+
+  const { frequency, detune, Q, gain, type } = filterSettings;
   return (
-    <div className="control">
-      <h2>Filter</h2>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.settings}>
         <RangeKnob
           max={10000}
           name="Frequency"
           value={frequency}
-          onChange={onChange}
+          onChange={changeFilter}
         />
-        <RangeKnob name="Detune" value={detune} onChange={onChange} />
-        <RangeKnob max={10} step={0.1} name="Q" value={Q} onChange={onChange} />
+        <RangeKnob name="Detune" value={detune} onChange={changeFilter} />
+        <RangeKnob
+          max={10}
+          step={0.1}
+          name="Q"
+          value={Q}
+          onChange={changeFilter}
+        />
         <RangeKnob
           max={10}
           step={0.1}
           name="Gain"
           value={gain}
-          onChange={onChange}
+          onChange={changeFilter}
         />
       </div>
-      {filterTypes.map((value) => (
-        <button
-          key={value}
-          onClick={() => changeType(value)}
-          className={`${type === value && "active"}`}
-        >
-          {value.toLocaleUpperCase()}
-        </button>
-      ))}
+      <div className={styles.buttonTypeGroup}>
+        {filterTypes.map((value) => (
+          <button
+            key={value}
+            onClick={() => changeFilterType(value)}
+            className={`${type === value && "active"}`}
+          >
+            {value.toLocaleUpperCase()}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

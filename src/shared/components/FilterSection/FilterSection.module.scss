@@ -1,0 +1,17 @@
+.container {
+    background-color: blue;
+    min-width: 700px;
+    padding: 8px;
+    display: flex;
+
+    .settings {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .buttonTypeGroup {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
