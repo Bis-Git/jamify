@@ -12,11 +12,11 @@ interface RangeKnobProps {
 const RangeKnob = ({ value, name, max, step, onChange }: RangeKnobProps) => {
   return (
     <div className={styles.container}>
-      <h3>{name}</h3>
+      <h3>{name.toLocaleUpperCase()}</h3>
       <input
         type="range"
         onChange={onChange}
-        id={name.toLocaleLowerCase()}
+        id={name}
         max={max}
         step={step}
         value={value}

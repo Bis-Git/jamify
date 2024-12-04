@@ -1,11 +1,16 @@
-import { useContext } from "react";
+import { DistortionSettings } from "../../context/AppAudioContext/AppAudioContext";
 import RangeKnob from "../RangeKnob/RangeKnob";
 import styles from "./DistortionSection.module.scss";
-import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
 
-const DistortionSection = () => {
-  const { distortionSettings, changeDistortion } = useContext(AppAudioContext);
+interface DistortionSectionProps {
+  distortionSettings: DistortionSettings;
+  changeDistortion: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
+const DistortionSection = ({
+  distortionSettings,
+  changeDistortion,
+}: DistortionSectionProps) => {
   return (
     <div className={styles.container}>
       <RangeKnob

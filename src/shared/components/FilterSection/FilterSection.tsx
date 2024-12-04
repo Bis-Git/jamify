@@ -1,7 +1,6 @@
-import { useContext } from "react";
 import RangeKnob from "../RangeKnob/RangeKnob";
 import styles from "./FilterSection.module.scss";
-import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
+import { FilterSettings } from "../../context/AppAudioContext/AppAudioContext";
 
 const filterTypes: BiquadFilterType[] = [
   "lowpass",
@@ -11,21 +10,28 @@ const filterTypes: BiquadFilterType[] = [
   "highshelf",
 ];
 
-const FilterSection = () => {
-  const { changeFilter, changeFilterType, filterSettings } =
-    useContext(AppAudioContext);
+interface FilterSectionProps {
+  changeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  changeFilterType: (type: BiquadFilterType) => void;
+  filterSettings: FilterSettings;
+}
 
+const FilterSection = ({
+  changeFilter,
+  changeFilterType,
+  filterSettings,
+}: FilterSectionProps) => {
   const { frequency, detune, Q, gain, type } = filterSettings;
   return (
     <div className={styles.container}>
       <div className={styles.settings}>
         <RangeKnob
           max={10000}
-          name="Frequency"
+          name="frequency"
           value={frequency}
           onChange={changeFilter}
         />
-        <RangeKnob name="Detune" value={detune} onChange={changeFilter} />
+        <RangeKnob name="detune" value={detune} onChange={changeFilter} />
         <RangeKnob
           max={10}
           step={0.1}
@@ -36,7 +42,7 @@ const FilterSection = () => {
         <RangeKnob
           max={10}
           step={0.1}
-          name="Gain"
+          name="gain"
           value={gain}
           onChange={changeFilter}
         />

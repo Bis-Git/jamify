@@ -1,29 +1,23 @@
-import { useEffect, useState } from "react";
-import { mediaInputService } from "../../../app/services/MediaInputService";
+import { Dispatch, SetStateAction } from "react";
 import styles from "./ControlSection.module.scss";
 
-const ControlsSection = () => {
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
-  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
-  const [isStartButton, setIsStartButton] = useState(false);
+interface ControlsSectionProps {
+  isStartButton: boolean;
+  handleSuspend: VoidFunction;
+  handleResume: VoidFunction;
+  selectedDeviceId: string;
+  setSelectedDeviceId: Dispatch<SetStateAction<string>>;
+  audioDevices: MediaDeviceInfo[];
+}
 
-  useEffect(() => {
-    mediaInputService.getAudioDevices().then((data) => setAudioDevices(data));
-    return () => {
-      mediaInputService.disconnectDevice();
-    };
-  }, []);
-
-  const handleResume = async () => {
-    await mediaInputService.actx.resume();
-    setIsStartButton(true);
-  };
-
-  const handleSuspend = async () => {
-    await mediaInputService.actx.suspend();
-    setIsStartButton(false);
-  };
-
+const ControlsSection = ({
+  audioDevices,
+  handleResume,
+  handleSuspend,
+  isStartButton,
+  selectedDeviceId,
+  setSelectedDeviceId,
+}: ControlsSectionProps) => {
   return (
     <div className={styles.container}>
       <div>

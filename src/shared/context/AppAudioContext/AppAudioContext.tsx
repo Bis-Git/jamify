@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useState } from "react";
 import { mediaInputService } from "../../../app/services/MediaInputService";
 
-interface FilterSettings {
+export interface FilterSettings {
   frequency: number;
   detune: number;
   Q: number;
@@ -62,9 +62,6 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
 
   const changeDistortion = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-
-    console.log(value);
-
     setDistortionSettings((prev) => ({
       ...prev,
       curveAmount: parseInt(value),
