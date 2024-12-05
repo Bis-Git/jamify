@@ -25,6 +25,10 @@ const ToolbarHeader = () => {
     };
   }, []);
 
+  useEffect(() => {
+    mediaInputService.handleMediaStream(selectedDeviceId);
+  }, [selectedDeviceId]);
+
   const handleResume = async () => {
     await mediaInputService.actx.resume();
     setIsStartButton(true);
