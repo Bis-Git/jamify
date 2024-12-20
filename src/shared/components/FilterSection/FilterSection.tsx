@@ -31,7 +31,12 @@ const FilterSection = ({
           value={frequency}
           onChange={changeFilter}
         />
-        <RangeKnob name="detune" value={detune} onChange={changeFilter} />
+        <RangeKnob
+          max={100}
+          name="detune"
+          value={detune}
+          onChange={changeFilter}
+        />
         <RangeKnob
           max={10}
           step={0.1}

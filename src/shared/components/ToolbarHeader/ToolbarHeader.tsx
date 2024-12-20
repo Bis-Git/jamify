@@ -8,34 +8,30 @@ import { mediaInputService } from "../../../app/services/MediaInputService";
 
 const ToolbarHeader = () => {
   const {
+    actx,
     changeFilter,
     changeFilterType,
     distortionSettings,
     changeDistortion,
     filterSettings,
+    selectedDeviceId,
+    setSelectedDeviceId,
   } = useContext(AppAudioContext);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
   const [isStartButton, setIsStartButton] = useState(false);
 
   useEffect(() => {
     mediaInputService.getAudioDevices().then((data) => setAudioDevices(data));
-    return () => {
-      mediaInputService.disconnectDevice();
-    };
+    actx.suspend();
   }, []);
 
-  useEffect(() => {
-    mediaInputService.handleMediaStream(selectedDeviceId);
-  }, [selectedDeviceId]);
-
   const handleResume = async () => {
-    await mediaInputService.actx.resume();
+    await actx.resume();
     setIsStartButton(true);
   };
 
   const handleSuspend = async () => {
-    await mediaInputService.actx.suspend();
+    await actx.suspend();
     setIsStartButton(false);
   };
 

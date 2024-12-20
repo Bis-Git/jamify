@@ -1,15 +1,18 @@
 .container {
     background-color: blue;
     min-width: 700px;
-    padding: 8px;
+    padding: 8px 16px;
     display: flex;
+    gap: 32px;
 
     .settings {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-direction: row;
+        gap:32px;
     }
 
     .buttonTypeGroup {
+        
         display: flex;
         flex-direction: column;
     }
