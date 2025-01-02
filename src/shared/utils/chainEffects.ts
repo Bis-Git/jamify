@@ -1,17 +1,20 @@
-import { EffectList } from "../models/EffectList";
+import { EffectList } from '../models/EffectList';
 
 interface ChainEffectsProps {
   audioContext: AudioContext;
-  mediaStream: MediaStream;
+  mediaInput: MediaStream | OscillatorNode;
   effects: EffectList;
 }
 
 export const chainEffects = ({
   audioContext,
-  mediaStream,
+  mediaInput,
   effects,
 }: ChainEffectsProps) => {
-  const mediaInputNode = audioContext.createMediaStreamSource(mediaStream);
+  const mediaInputNode =
+    mediaInput instanceof MediaStream
+      ? audioContext.createMediaStreamSource(mediaInput)
+      : mediaInput;
 
   const enabledEffects = effects.filter(
     (effect) => effect !== null && effect !== undefined

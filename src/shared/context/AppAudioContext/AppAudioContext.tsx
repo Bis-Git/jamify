@@ -4,13 +4,12 @@ import {
   useEffect,
   useMemo,
   useState,
-} from "react";
-import { mediaInputService } from "../../../app/services/MediaInputService";
-import { audioContextOptions } from "../../constants/audioContextOptions";
-import { chainEffects } from "../../utils/chainEffects";
-import { useDistortionEffect } from "../../hooks/useDistortionEffect";
-import { DistortionEffectSettings } from "../../models/DistortionEffectSettings";
-import { useFilterEffect } from "../../hooks/useFilterEffect";
+} from 'react';
+import { mediaInputService } from '../../../app/services/MediaInputService';
+import { audioContextOptions } from '../../constants/audioContextOptions';
+import { useDistortionEffect } from '../../hooks/useDistortionEffect';
+import { useFilterEffect } from '../../hooks/useFilterEffect';
+import { DistortionEffectSettings } from '../../models/DistortionEffectSettings';
 
 export interface FilterSettings {
   frequency: number;
@@ -38,13 +37,13 @@ export const AppAudioContext = createContext<AppAudioContextProps>({
     detune: 0,
     Q: 0,
     gain: 0,
-    type: "lowpass",
+    type: 'lowpass',
   },
   distortionSettings: {
     curveAmount: 0,
-    oversample: "none",
+    oversample: 'none',
   },
-  selectedDeviceId: "default",
+  selectedDeviceId: 'default',
   changeFilter: () => null,
   changeFilterType: () => null,
   changeDistortion: () => null,
@@ -53,7 +52,7 @@ export const AppAudioContext = createContext<AppAudioContextProps>({
 
 export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   const actx = useMemo(() => new AudioContext({ ...audioContextOptions }), []);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('default');
 
   const { distortionNode, distortionSettings, changeDistortion } =
     useDistortionEffect({
@@ -68,13 +67,13 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     mediaInputService.handleMediaStream(selectedDeviceId).then((stream) => {
       if (!stream) return;
-      actx.destination.disconnect();
+      // actx.destination.disconnect();
 
-      chainEffects({
-        audioContext: actx,
-        mediaStream: stream,
-        effects: [actx.createGain(), filterNode, distortionNode],
-      });
+      // chainEffects({
+      //   audioContext: actx,
+      //   mediaInput: stream,
+      //   effects: [actx.createGain(), filterNode, distortionNode],
+      // });
     });
   }, [actx, selectedDeviceId, distortionNode, filterNode]);
 

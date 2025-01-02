@@ -1,5 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
-import styles from "./ControlSection.module.scss";
+import { Dispatch, SetStateAction, useContext } from 'react';
+import { AppAudioContext } from '../../context/AppAudioContext/AppAudioContext';
+import { useOscillator } from '../../hooks/useOscillator';
+import styles from './ControlSection.module.scss';
 
 interface ControlsSectionProps {
   isStartButton: boolean;
@@ -18,11 +20,14 @@ const ControlsSection = ({
   selectedDeviceId,
   setSelectedDeviceId,
 }: ControlsSectionProps) => {
+  const { actx } = useContext(AppAudioContext);
+  const { pulseOscillator } = useOscillator({ audioContext: actx });
+
   return (
     <div className={styles.container}>
       <div>
         <button onClick={isStartButton ? handleSuspend : handleResume}>
-          {isStartButton ? "Stop" : "Start"}
+          {isStartButton ? 'Stop' : 'Start'}
         </button>
       </div>
 
@@ -36,6 +41,10 @@ const ControlsSection = ({
           </option>
         ))}
       </select>
+
+      <div>
+        <button onClick={pulseOscillator}>Pulse</button>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,10 @@
-import styles from "./ToolbarHeader.module.scss";
-import ControlsSection from "../ControlsSection/ControlsSection";
-import DistortionSection from "../DistortionSection/DistortionSection";
-import FilterSection from "../FilterSection/FilterSection";
-import { useContext, useEffect, useState } from "react";
-import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
-import { mediaInputService } from "../../../app/services/MediaInputService";
+import { useContext, useEffect, useState } from 'react';
+import { mediaInputService } from '../../../app/services/MediaInputService';
+import { AppAudioContext } from '../../context/AppAudioContext/AppAudioContext';
+import ControlsSection from '../ControlsSection/ControlsSection';
+import DistortionSection from '../DistortionSection/DistortionSection';
+import FilterSection from '../FilterSection/FilterSection';
+import styles from './ToolbarHeader.module.scss';
 
 const ToolbarHeader = () => {
   const {
@@ -18,7 +18,7 @@ const ToolbarHeader = () => {
     setSelectedDeviceId,
   } = useContext(AppAudioContext);
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
-  const [isStartButton, setIsStartButton] = useState(false);
+  const [isLiveStartButton, setIsLiveStartButton] = useState(false);
 
   useEffect(() => {
     mediaInputService.getAudioDevices().then((data) => setAudioDevices(data));
@@ -27,12 +27,12 @@ const ToolbarHeader = () => {
 
   const handleResume = async () => {
     await actx.resume();
-    setIsStartButton(true);
+    setIsLiveStartButton(true);
   };
 
   const handleSuspend = async () => {
     await actx.suspend();
-    setIsStartButton(false);
+    setIsLiveStartButton(false);
   };
 
   return (
@@ -41,7 +41,7 @@ const ToolbarHeader = () => {
         audioDevices={audioDevices}
         handleResume={handleResume}
         handleSuspend={handleSuspend}
-        isStartButton={isStartButton}
+        isStartButton={isLiveStartButton}
         selectedDeviceId={selectedDeviceId}
         setSelectedDeviceId={setSelectedDeviceId}
       />
