@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction, useContext } from 'react';
-import { AppAudioContext } from '../../context/AppAudioContext/AppAudioContext';
-import { useOscillator } from '../../hooks/useOscillator';
-import styles from './ControlSection.module.scss';
+import { Dispatch, SetStateAction } from "react";
+import { useOscillator } from "../../hooks/useOscillator";
+import styles from "./ControlSection.module.scss";
 
 interface ControlsSectionProps {
   isStartButton: boolean;
@@ -20,14 +19,17 @@ const ControlsSection = ({
   selectedDeviceId,
   setSelectedDeviceId,
 }: ControlsSectionProps) => {
-  const { actx } = useContext(AppAudioContext);
-  const { pulseOscillator } = useOscillator({ audioContext: actx });
+  const { pulse } = useOscillator();
+
+  const playNote = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === "a") pulse();
+  };
 
   return (
     <div className={styles.container}>
       <div>
         <button onClick={isStartButton ? handleSuspend : handleResume}>
-          {isStartButton ? 'Stop' : 'Start'}
+          {isStartButton ? "Stop" : "Start"}
         </button>
       </div>
 
@@ -43,7 +45,9 @@ const ControlsSection = ({
       </select>
 
       <div>
-        <button onClick={pulseOscillator}>Pulse</button>
+        <button onKeyDown={playNote} onClick={pulse}>
+          Pulse
+        </button>
       </div>
     </div>
   );

@@ -1,65 +1,86 @@
-import { cMajorOptions } from '../constants/cMajorOptions';
-import { EffectBase } from '../models/EffectBase';
+import { useContext, useState } from "react";
+import { cMajorOptions } from "../constants/cMajorOptions";
+import { AppAudioContext } from "../context/AppAudioContext/AppAudioContext";
 
-type UseOscillatorProps = EffectBase;
+export const useOscillator = () => {
+  const { actx, masterGainNode } = useContext(AppAudioContext);
 
-export const useOscillator = ({ audioContext }: UseOscillatorProps) => {
-  const pulseOscillator = async () => {
-    if (audioContext.state === 'suspended') await audioContext.resume();
-
-    const masterGain = audioContext.createGain();
-
-    const delay = audioContext.createDelay();
-    delay.delayTime.value = 0.4;
-    masterGain.gain.value = 0.8;
-    const feedback = audioContext.createGain();
-    feedback.gain.value = 0.3;
-
-    const note = {
-      vco1: audioContext.createOscillator(),
-      vca1: audioContext.createGain(),
-      // vco2: audioContext.createOscillator(),
-      // vca2: audioContext.createGain(),
-    };
-
-    note.vco1.connect(note.vca1);
-    note.vca1.connect(masterGain);
-    note.vca1.connect(delay);
-
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(masterGain);
-
-    // const startingPitch = note.vco1.frequency.value;
-
-    // note.vco2.frequency.value = transpose(startingPitch, 7);
-    // note.vco2.connect(note.vca2);
-    // note.vca2.connect(masterGain);
-
-    masterGain.connect(audioContext.destination);
-
-    const fequencyIndex = getRandomInt(0, cMajorOptions.length - 1);
-    note.vco1.frequency.value = cMajorOptions[fequencyIndex].value;
-
-    note.vca1.gain.exponentialRampToValueAtTime(
-      1,
-      audioContext.currentTime + 0.2
-    );
-    note.vca1.gain.exponentialRampToValueAtTime(
-      0.0001,
-      audioContext.currentTime + 0.5
-    );
-
-    note.vco1.start();
-  };
+  const [pulseTonesConfig] = useState([
+    {
+      volume: 1,
+      offset: 0,
+    },
+    {
+      volume: 0.2,
+      offset: 7,
+    },
+  ]);
 
   const getRandomInt = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
 
-  // const transpose = (freq: number, steps: number) =>
-  //   freq * Math.pow(2, steps / 12);
+  const getRandomNote = () =>
+    cMajorOptions[getRandomInt(0, cMajorOptions.length - 1)].value;
+
+  const createNote = () => {
+    if (!masterGainNode) return;
+
+    const masterVca = actx.createGain();
+    const vcos: OscillatorNode[] = [];
+
+    pulseTonesConfig.forEach((config) => {
+      const vco = actx.createOscillator();
+      vco.frequency.value = transpose(getRandomNote(), config.offset);
+      const vca = actx.createGain();
+      vca.gain.value = config.volume;
+      vco.connect(vca);
+      vca.connect(masterVca);
+      vcos.push(vco);
+    });
+
+    masterVca.connect(masterGainNode);
+
+    return { vco: vcos, gainNode: masterVca };
+  };
+
+  const startPulse = ({
+    note,
+    time,
+  }: {
+    note: { vco: OscillatorNode[]; gainNode: GainNode };
+    time: number;
+  }) => {
+    note.vco.map((vco) => vco.start(time));
+    note.gainNode.gain.exponentialRampToValueAtTime(1, time + 0.2);
+  };
+
+  const stopPulse = ({
+    note,
+    time,
+  }: {
+    note: { vco: OscillatorNode[]; gainNode: GainNode };
+    time: number;
+  }) => {
+    note.gainNode.gain.exponentialRampToValueAtTime(0.0001, time + 0.5);
+    note.vco.map((vco) => vco.stop(time + 1));
+  };
+
+  const pulse = async () => {
+    const time = actx.currentTime;
+    const note = createNote();
+
+    if (!note) return;
+    if (actx.state === "suspended") await actx.resume();
+
+    startPulse({ note, time });
+
+    stopPulse({ note, time: time + 0.5 });
+  };
+
+  const transpose = (freq: number, steps: number) =>
+    freq * Math.pow(2, steps / 12);
 
   return {
-    pulseOscillator,
+    pulse,
   };
 };

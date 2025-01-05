@@ -4,12 +4,13 @@ import {
   useEffect,
   useMemo,
   useState,
-} from 'react';
-import { mediaInputService } from '../../../app/services/MediaInputService';
-import { audioContextOptions } from '../../constants/audioContextOptions';
-import { useDistortionEffect } from '../../hooks/useDistortionEffect';
-import { useFilterEffect } from '../../hooks/useFilterEffect';
-import { DistortionEffectSettings } from '../../models/DistortionEffectSettings';
+} from "react";
+import { mediaInputService } from "../../../app/services/MediaInputService";
+import { audioContextOptions } from "../../constants/audioContextOptions";
+import { useDistortionEffect } from "../../hooks/useDistortionEffect";
+import { useFilterEffect } from "../../hooks/useFilterEffect";
+import { DistortionEffectSettings } from "../../models/DistortionEffectSettings";
+import { chainEffects } from "../../utils/chainEffects";
 
 export interface FilterSettings {
   frequency: number;
@@ -21,6 +22,7 @@ export interface FilterSettings {
 
 interface AppAudioContextProps {
   actx: AudioContext;
+  masterGainNode: GainNode | undefined;
   filterSettings: FilterSettings;
   distortionSettings: DistortionEffectSettings;
   selectedDeviceId: string;
@@ -32,18 +34,19 @@ interface AppAudioContextProps {
 
 export const AppAudioContext = createContext<AppAudioContextProps>({
   actx: new AudioContext({ ...audioContextOptions }),
+  masterGainNode: undefined,
   filterSettings: {
     frequency: 0,
     detune: 0,
     Q: 0,
     gain: 0,
-    type: 'lowpass',
+    type: "lowpass",
   },
   distortionSettings: {
     curveAmount: 0,
-    oversample: 'none',
+    oversample: "none",
   },
-  selectedDeviceId: 'default',
+  selectedDeviceId: "default",
   changeFilter: () => null,
   changeFilterType: () => null,
   changeDistortion: () => null,
@@ -52,7 +55,14 @@ export const AppAudioContext = createContext<AppAudioContextProps>({
 
 export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   const actx = useMemo(() => new AudioContext({ ...audioContextOptions }), []);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('default');
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
+
+  const masterGainNode = useMemo(() => {
+    const gainNode = actx.createGain();
+    gainNode.gain.value = 0.8;
+    gainNode.connect(actx.destination);
+    return gainNode;
+  }, []);
 
   const { distortionNode, distortionSettings, changeDistortion } =
     useDistortionEffect({
@@ -67,20 +77,21 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     mediaInputService.handleMediaStream(selectedDeviceId).then((stream) => {
       if (!stream) return;
-      // actx.destination.disconnect();
+      actx.destination.disconnect();
 
-      // chainEffects({
-      //   audioContext: actx,
-      //   mediaInput: stream,
-      //   effects: [actx.createGain(), filterNode, distortionNode],
-      // });
+      chainEffects({
+        audioContext: actx,
+        mediaInput: stream,
+        effects: [filterNode, distortionNode, masterGainNode],
+      });
     });
-  }, [actx, selectedDeviceId, distortionNode, filterNode]);
+  }, [actx, selectedDeviceId, distortionNode, filterNode, masterGainNode]);
 
   return (
     <AppAudioContext.Provider
       value={{
         actx,
+        masterGainNode,
         changeFilter,
         filterSettings,
         distortionSettings,
