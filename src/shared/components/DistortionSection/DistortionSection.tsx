@@ -1,17 +1,25 @@
-import React from "react";
-import { DistortionSettings } from "../../context/AppAudioContext/AppAudioContext";
+import { DistortionEffectSettings } from "../../models/DistortionEffectSettings";
 import RangeKnob from "../RangeKnob/RangeKnob";
+import styles from "./DistortionSection.module.scss";
 
 interface DistortionSectionProps {
-  settings: DistortionSettings;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  distortionSettings: DistortionEffectSettings;
+  changeDistortion: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const DistortionSection = ({ settings, onChange }: DistortionSectionProps) => {
-  const { curveAmount } = settings;
-
+const DistortionSection = ({
+  distortionSettings,
+  changeDistortion,
+}: DistortionSectionProps) => {
   return (
-    <RangeKnob name="Distortion" value={curveAmount} onChange={onChange} />
+    <div className={styles.container}>
+      <RangeKnob
+        max={100}
+        name="Distortion"
+        value={distortionSettings.curveAmount}
+        onChange={changeDistortion}
+      />
+    </div>
   );
 };
 

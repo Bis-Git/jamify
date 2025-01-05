@@ -1,0 +1,12 @@
+.container {
+    background-color: wheat;
+    border: 1x solid white;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    padding: 12px 12px;
+
+    select {
+        width: 80px;
+    }
+}

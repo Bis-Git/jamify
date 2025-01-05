@@ -1,40 +1,11 @@
-import { audioContextOptions } from "../../shared/constants/audioContextOptions";
-
 class MediaInputService {
-  public actx: AudioContext = new AudioContext({ ...audioContextOptions });
-  public mediaSource: MediaStreamAudioSourceNode | undefined;
-  public gain: GainNode = this.actx.createGain();
-  public filter: BiquadFilterNode = this.actx.createBiquadFilter();
-  public distortion: WaveShaperNode = this.actx.createWaveShaper();
-
-  public makeDistortionCurve = (amount: number) => {
-    const n_samples = 256;
-    const curve = new Float32Array(n_samples);
-    for (let i = 0; i < n_samples; ++i) {
-      const x = (i * 2) / n_samples - 1;
-      curve[i] = ((Math.PI + amount) * x) / (Math.PI + amount * Math.abs(x));
-    }
-    return curve;
-  };
-
-  private connectDevice = (stream: MediaStream) => {
-    this.mediaSource = this.actx.createMediaStreamSource(stream);
-
-    this.mediaSource.connect(this.gain);
-    this.gain.connect(this.filter);
-    this.filter.connect(this.distortion);
-    this.distortion.connect(this.actx.destination);
-  };
+  public mediaStream: MediaStream | undefined;
 
   private getAllDevices = async () => {
     const devices = await navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => devices);
     return devices;
-  };
-
-  disconnectDevice = () => {
-    this.mediaSource?.disconnect();
   };
 
   getAudioDevices = async () => {
@@ -46,8 +17,8 @@ class MediaInputService {
     return audioDevices;
   };
 
-  handleMediaStream = (deviceId: string) => {
-    navigator.mediaDevices
+  handleMediaStream = async (deviceId: string) => {
+    return await navigator.mediaDevices
       .getUserMedia({
         audio: {
           deviceId,
@@ -58,8 +29,11 @@ class MediaInputService {
           sampleRate: 44100,
         },
       })
-      .then((stream) => this.connectDevice(stream))
-      .catch((error) => console.error(error));
+      .then((stream) => stream)
+      .catch((error) => {
+        console.error(error);
+        return undefined;
+      });
   };
 }
 
