@@ -26,6 +26,7 @@ interface AppAudioContextProps {
   filterSettings: FilterSettings;
   distortionSettings: DistortionEffectSettings;
   selectedDeviceId: string;
+  mediaStream: MediaStream | null;
   changeFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
   changeFilterType: (type: BiquadFilterType) => void;
   changeDistortion: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -47,6 +48,7 @@ export const AppAudioContext = createContext<AppAudioContextProps>({
     oversample: "none",
   },
   selectedDeviceId: "default",
+  mediaStream: null,
   changeFilter: () => null,
   changeFilterType: () => null,
   changeDistortion: () => null,
@@ -56,6 +58,7 @@ export const AppAudioContext = createContext<AppAudioContextProps>({
 export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   const actx = useMemo(() => new AudioContext({ ...audioContextOptions }), []);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("default");
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const masterGainNode = useMemo(() => {
     const gainNode = actx.createGain();
@@ -77,6 +80,8 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     mediaInputService.handleMediaStream(selectedDeviceId).then((stream) => {
       if (!stream) return;
+      setMediaStream(stream);
+
       actx.destination.disconnect();
 
       chainEffects({
@@ -96,6 +101,7 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
         filterSettings,
         distortionSettings,
         selectedDeviceId,
+        mediaStream,
         setSelectedDeviceId,
         changeFilterType,
         changeDistortion,
