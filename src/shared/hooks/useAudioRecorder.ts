@@ -6,10 +6,10 @@ export const useAudioRecorder = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const startRecording = (stream: MediaStream) => {
+  const startRecording = (stream: MediaStream | null) => {
     if (!stream) return;
 
-    const mediaRecorder = new MediaRecorder(stream);
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
     mediaRecorder.ondataavailable = (event) => {
       audioChunksRef.current.push(event.data);
     };
@@ -33,5 +33,11 @@ export const useAudioRecorder = () => {
     setIsRecording(false);
   };
 
-  return { isRecording, audioUrl, startRecording, stopRecording };
+  return {
+    isRecording,
+    audioUrl,
+    startRecording,
+    stopRecording,
+    setIsRecording,
+  };
 };

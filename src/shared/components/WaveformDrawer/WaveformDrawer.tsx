@@ -1,35 +1,45 @@
-import React, { useEffect, useRef } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
+import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
 
 interface WaveformRecorderProps {
   stream: MediaStream;
   isRecording: boolean;
+  setRecordedWidth: Dispatch<SetStateAction<number>>;
 }
 
-export const WaveformRecorder: React.FC<WaveformRecorderProps> = ({
+export const WaveformDrawer: React.FC<WaveformRecorderProps> = ({
   stream,
   isRecording,
+  setRecordedWidth,
 }) => {
+  const { actx } = useContext(AppAudioContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-
-  // Track current drawing position
   const currentXRef = useRef(0);
+  const totalDurationRef = useRef(0.1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const canvasCtx = canvas?.getContext("2d");
-    const audioContext = new AudioContext();
-    const analyser = audioContext.createAnalyser();
+    if (!canvas || !canvasCtx) return;
+    canvasCtx.fillStyle = "black";
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const canvasCtx = canvas?.getContext("2d");
+    const analyser = actx.createAnalyser();
     analyser.fftSize = 2048;
 
-    const source = audioContext.createMediaStreamSource(stream);
+    const source = actx.createMediaStreamSource(stream);
     source.connect(analyser);
-
-    audioContextRef.current = audioContext;
-    analyserRef.current = analyser;
 
     const drawWaveform = () => {
       if (!canvas || !canvasCtx || !analyser) return;
@@ -41,13 +51,11 @@ export const WaveformRecorder: React.FC<WaveformRecorderProps> = ({
 
       analyser.getFloatTimeDomainData(dataArray);
 
-      // Calculate x increment based on the canvas width and recording duration
-      const xIncrement = width / (audioContext.sampleRate * 0.1); // Assuming 5 seconds max for full width
-
-      // Start drawing at the current x position
+      const xIncrement = width / (totalDurationRef.current * actx.sampleRate);
       const xStart = currentXRef.current;
       const xEnd = xStart + xIncrement;
 
+      // Draw waveform
       canvasCtx.beginPath();
       const yCenter = height / 2;
 
@@ -67,13 +75,12 @@ export const WaveformRecorder: React.FC<WaveformRecorderProps> = ({
       }
 
       canvasCtx.strokeStyle = "lime";
-      canvasCtx.lineWidth = 2;
+      canvasCtx.lineWidth = 1;
       canvasCtx.stroke();
 
-      // Update x position for the next frame
+      setRecordedWidth(x);
       currentXRef.current = xEnd;
 
-      // Stop drawing when reaching the canvas width
       if (currentXRef.current < width) {
         animationFrameRef.current = requestAnimationFrame(drawWaveform);
       }
@@ -84,7 +91,7 @@ export const WaveformRecorder: React.FC<WaveformRecorderProps> = ({
       canvasCtx.fillStyle = "black";
       canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-      currentXRef.current = 0; // Reset x position
+      currentXRef.current = 0;
       drawWaveform();
     } else {
       cancelAnimationFrame(animationFrameRef.current || 0);
@@ -92,34 +99,15 @@ export const WaveformRecorder: React.FC<WaveformRecorderProps> = ({
 
     return () => {
       cancelAnimationFrame(animationFrameRef.current || 0);
-      audioContext.close();
     };
-  }, [stream, isRecording]);
-
-  useEffect(() => {
-    if (isRecording) {
-      const mediaRecorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        chunks.push(e.data);
-      };
-
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
-    } else {
-      mediaRecorderRef.current?.stop();
-    }
-
-    return () => {
-      mediaRecorderRef.current?.stop();
-    };
-  }, [isRecording, stream]);
+  }, [stream, isRecording, actx]);
 
   return (
     <canvas
       ref={canvasRef}
-      style={{ border: "1px solid black", backgroundColor: "black" }}
-    />
+      width={1400}
+      height={200}
+      style={{ border: "1px solid black", position: "absolute", zIndex: 1 }}
+    ></canvas>
   );
 };
