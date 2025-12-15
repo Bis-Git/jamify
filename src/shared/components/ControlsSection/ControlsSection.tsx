@@ -1,6 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
 import { useOscillator } from "../../hooks/useOscillator";
 import styles from "./ControlSection.module.scss";
+import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
 
 interface ControlsSectionProps {
   isStartButton: boolean;
@@ -20,6 +21,8 @@ const ControlsSection = ({
   setSelectedDeviceId,
 }: ControlsSectionProps) => {
   const { pulse } = useOscillator();
+  const { toggleRecorder, isRecording, handlePlay, handlePause, handleStop } =
+    useContext(AppAudioContext);
 
   const playNote = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "a") pulse();
@@ -47,6 +50,23 @@ const ControlsSection = ({
       <div>
         <button onKeyDown={playNote} onClick={pulse}>
           Pulse
+        </button>
+      </div>
+      <div>
+        <button onClick={toggleRecorder}>
+          {`${isRecording ? "Stop" : "Start"} recording`}
+        </button>
+      </div>
+
+      <div>
+        <button onClick={handlePlay} disabled={isRecording}>
+          Play
+        </button>
+        <button onClick={handlePause} disabled={isRecording}>
+          Pause
+        </button>
+        <button onClick={handleStop} disabled={isRecording}>
+          Stop
         </button>
       </div>
     </div>

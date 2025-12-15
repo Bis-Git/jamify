@@ -1,28 +1,23 @@
-import { useRef, useContext, useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
-import { useAudioRecorder } from "../../hooks/useAudioRecorder";
 // import styles from "./Timeline.module.scss";
 import { WaveformSeek } from "../WaveformSeek/WaveformSeek";
 import { WaveformDrawer } from "../WaveformDrawer/WaveformDrawer";
 
 const Timeline = () => {
-  const { mediaStream, actx } = useContext(AppAudioContext);
-  const { isRecording, audioUrl, startRecording, stopRecording } =
-    useAudioRecorder();
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
-  const [recordedWidth, setRecordedWidth] = useState(0);
-
-  const toggleRecorder = async () => {
-    if (isRecording) {
-      await actx.suspend();
-      stopRecording();
-    } else {
-      await actx.resume();
-      startRecording(mediaStream);
-    }
-  };
+  const {
+    processedStream,
+    actx,
+    audioElementRef,
+    duration,
+    setCurrentTime,
+    audioUrl,
+    setDuration,
+    setRecordedWidth,
+    recordedWidth,
+    currentTime,
+    isRecording,
+  } = useContext(AppAudioContext);
 
   const handleSeek = (time: number) => {
     if (!audioElementRef.current || !isFinite(duration)) {
@@ -43,7 +38,6 @@ const Timeline = () => {
       try {
         const audioBuffer = await actx.decodeAudioData(arrayBuffer);
         setDuration(audioBuffer.duration);
-        console.log("Decoded duration:", audioBuffer.duration);
       } catch (error) {
         console.error("Error decoding audio data:", error);
       }
@@ -65,24 +59,10 @@ const Timeline = () => {
     };
   }, [actx, audioUrl]);
 
-  const isSupported = () => {
-    const audio = document.createElement("audio");
-    return !!(
-      audio.canPlayType &&
-      audio.canPlayType("audio/webm; codecs=opus").replace(/no/, "")
-    );
-  };
-
-  useEffect(() => {
-    console.log("Audio format supported:", isSupported());
-  }, []);
-
   return (
     <div style={{ paddingLeft: "4px" }}>
-      <button onClick={toggleRecorder}>
-        {`${isRecording ? "Stop" : "Start"} recording`}
-      </button>
-      {mediaStream && (
+      {audioUrl && <audio controls src={audioUrl} />}
+      {/* {processedStream && (
         <div
           style={{
             position: "relative",
@@ -91,7 +71,7 @@ const Timeline = () => {
           }}
         >
           <WaveformDrawer
-            stream={mediaStream}
+            stream={processedStream}
             isRecording={isRecording}
             setRecordedWidth={setRecordedWidth}
           />
@@ -114,7 +94,7 @@ const Timeline = () => {
         }}
       />
 
-      {audioUrl && <audio controls ref={audioElementRef} src={audioUrl} />}
+      {audioUrl && <audio ref={audioElementRef} src={audioUrl} />} */}
     </div>
   );
 };

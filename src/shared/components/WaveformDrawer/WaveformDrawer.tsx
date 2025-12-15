@@ -55,7 +55,6 @@ export const WaveformDrawer: React.FC<WaveformRecorderProps> = ({
       const xStart = currentXRef.current;
       const xEnd = xStart + xIncrement;
 
-      // Draw waveform
       canvasCtx.beginPath();
       const yCenter = height / 2;
 
@@ -97,10 +96,12 @@ export const WaveformDrawer: React.FC<WaveformRecorderProps> = ({
       cancelAnimationFrame(animationFrameRef.current || 0);
     }
 
+    console.log(canvas, canvasCtx, analyser, source);
+
     return () => {
       cancelAnimationFrame(animationFrameRef.current || 0);
     };
-  }, [stream, isRecording, actx]);
+  }, [stream, isRecording, actx, setRecordedWidth]);
 
   return (
     <canvas
