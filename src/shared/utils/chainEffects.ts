@@ -1,4 +1,4 @@
-import { EffectList } from '../models/EffectList';
+import { EffectList } from "../models/EffectList";
 
 interface ChainEffectsProps {
   audioContext: AudioContext;
@@ -27,9 +27,8 @@ export const chainEffects = ({
     previousNode = effect;
   });
 
-  if (enabledEffects.length > 0) {
-    previousNode.connect(audioContext.destination);
-  } else {
-    mediaInputNode.connect(audioContext.destination);
-  }
+  const destinationNode = audioContext.createMediaStreamDestination();
+  previousNode.connect(destinationNode);
+
+  return destinationNode;
 };
