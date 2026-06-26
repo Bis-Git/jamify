@@ -1,8 +1,10 @@
 import { FC, PropsWithChildren } from "react";
-import { AppAudioProvider } from "../../context/AppAudioContext/AppAudioContext";
+import { GlobalTransportProvider } from "../../context/GlobalTransportContext/GlobalTransportContext";
+// import { AppAudioProvider } from "../../context/AppAudioContext/AppAudioContext";
 
 const SharedProviders: FC<PropsWithChildren> = ({ children }) => {
-  return <AppAudioProvider>{children}</AppAudioProvider>;
+  // return <AppAudioProvider>{children}</AppAudioProvider>;
+  return <GlobalTransportProvider>{children}</GlobalTransportProvider>;
 };
 
 export default SharedProviders;
