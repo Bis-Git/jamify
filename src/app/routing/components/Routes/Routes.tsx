@@ -5,12 +5,12 @@ import {
 } from "react-router-dom";
 import App from "../../../../App";
 import { AuthRoute } from "../../enums/AuthRoute.enum";
-import Dashboard from "../../../dashboard/Dashboard";
+import DashboardTest from "../../../dashboardTest/DashboardTest";
 
 const AppRouter = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
-      <Route path={AuthRoute.dashboard} element={<Dashboard />} />
+      <Route path={AuthRoute.dashboard} element={<DashboardTest />} />
     </Route>
   )
 );

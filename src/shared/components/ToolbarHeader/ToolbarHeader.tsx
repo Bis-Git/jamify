@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react';
-import { mediaInputService } from '../../../app/services/MediaInputService';
-import { AppAudioContext } from '../../context/AppAudioContext/AppAudioContext';
-import ControlsSection from '../ControlsSection/ControlsSection';
-import DistortionSection from '../DistortionSection/DistortionSection';
-import FilterSection from '../FilterSection/FilterSection';
-import styles from './ToolbarHeader.module.scss';
+import { useContext, useEffect, useState } from "react";
+import { mediaInputService } from "../../../app/services/MediaInputService";
+import { AppAudioContext } from "../../context/AppAudioContext/AppAudioContext";
+import ControlsSection from "../ControlsSection/ControlsSection";
+import DistortionSection from "../DistortionSection/DistortionSection";
+import FilterSection from "../FilterSection/FilterSection";
+import styles from "./ToolbarHeader.module.scss";
 
 const ToolbarHeader = () => {
   const {

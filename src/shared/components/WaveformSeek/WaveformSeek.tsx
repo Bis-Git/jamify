@@ -56,8 +56,6 @@ export const WaveformSeek: React.FC<WaveformSeekProps> = ({
     const rect = canvas.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
 
-    console.log(recordedWith, clickX);
-
     const seekTime = (clickX / recordedWith) * duration;
     onSeek(Math.min(Math.max(seekTime, 0), duration));
   };

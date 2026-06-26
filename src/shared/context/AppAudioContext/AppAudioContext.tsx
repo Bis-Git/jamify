@@ -140,9 +140,8 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
     if (!stream) return;
 
     const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-    mediaRecorder.ondataavailable = (event) => {
+    mediaRecorder.ondataavailable = (event) =>
       audioChunksRef.current.push(event.data);
-    };
 
     mediaRecorder.onstop = () => {
       const audioBlob = new Blob(audioChunksRef.current, {
@@ -152,9 +151,6 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
       setAudioUrl(url);
       audioChunksRef.current = [];
     };
-
-    // TODO: clean
-    console.log("MR:", mediaRecorder);
 
     mediaRecorder.start();
     mediaRecorderRef.current = mediaRecorder;
@@ -198,6 +194,10 @@ export const AppAudioProvider = ({ children }: PropsWithChildren) => {
       startRecording(processedStream);
     }
   };
+
+  useEffect(() => {
+    console.log(selectedDeviceId);
+  }, [selectedDeviceId]);
 
   return (
     <AppAudioContext.Provider
